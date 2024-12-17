@@ -82,10 +82,95 @@ bool SerialPortManager::isPortAvailable(const QString &portName)
     return false;  // 没有找到指定的串口
 }
 
+
+// 模板函数的实现
+template <typename T>
+void SerialPortManager::m_addEnumForList(QList<QString>& list)
+{
+    // 将传入的枚举值转换为整数并添加到 QList 中
+    QMetaEnum metaEnum = QMetaEnum::fromType<T>();
+    int count = metaEnum.keyCount();
+    for (int i = 0; i < count; ++i) {
+        QString key = metaEnum.key(i);
+        list.append(key);
+        //int value = metaEnum.value(i);
+        // 处理key和value
+    }
+}
+
+// 获取串口
 QList<QSerialPortInfo> SerialPortManager::getAllPort()
 {
     return QSerialPortInfo::availablePorts();
 }
+
+
+// 获取波特率
+QList<QString> SerialPortManager::getAllBaudRates()
+{
+    QList<QString> baudRates;
+
+    // m_addEnumForList<QSerialPort::BaudRate>(baudRates);
+
+    QMetaEnum metaEnum = QMetaEnum::fromType<QSerialPort::BaudRate>();
+    int count = metaEnum.keyCount();
+    for (int i = 0; i < count; ++i) {
+        //QString key = metaEnum.key(i);
+        int value = metaEnum.value(i);
+        baudRates.append(QString::number(value));
+        // 处理key和value
+    }
+
+    return baudRates;
+}
+
+// 获取数据位
+QList<QString> SerialPortManager::getAllDataBits()
+{
+    QList<QString> dataBitsList;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QSerialPort::DataBits>();
+    int count = metaEnum.keyCount();
+    for (int i = 0; i < count; ++i) {
+        //QString key = metaEnum.key(i);
+        int value = metaEnum.value(i);
+        dataBitsList.append(QString::number(value));
+        // 处理key和value
+    }
+    return dataBitsList;
+}
+
+// 获取停止位
+QList<QString> SerialPortManager::getAllStopBits()
+{
+    QList<QString> stopBitsList;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QSerialPort::StopBits>();
+    int count = metaEnum.keyCount();
+    for (int i = 0; i < count; ++i) {
+        QString key = metaEnum.key(i);
+        stopBitsList.append(key);
+        //int value = metaEnum.value(i);
+        // 处理key和value
+    }
+    return stopBitsList;
+}
+
+
+// 获取校验位
+QList<QString> SerialPortManager::getAllParity()
+{
+    QList<QString> parityList;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QSerialPort::Parity>();
+    int count = metaEnum.keyCount();
+    for (int i = 0; i < count; ++i) {
+        QString key = metaEnum.key(i);
+        parityList.append(key);
+        //int value = metaEnum.value(i);
+        // 处理key和value
+    }
+    return parityList;
+}
+
+
 
 void SerialPortManager::setDataReceivedCallback(std::function<void(const QByteArray &)> callback)
 {

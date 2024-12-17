@@ -15,7 +15,9 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    EnumToString.h \
     SerialPortManager.h \
+    StringToEnum.h \
     mainwindow.h
 
 FORMS += \

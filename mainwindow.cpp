@@ -20,14 +20,14 @@ void MainWindow::dataCallback(const QByteArray &data)
     }
 
     // 将接收到的内容追加到文本框
-    QString existingText = ui->textEdit_2->toPlainText();
+    QString existingText = ui->textEdit->toPlainText();
     if (!existingText.isEmpty()) {
         existingText.append(' '); // 如果已经有内容，先添加一个空格
     }
     existingText.append(formattedHex); // 追加新接收到的数据
 
     // 更新文本框内容
-    ui->textEdit_2->setText(existingText);
+    ui->textEdit->setText(existingText);
 
     // 可选：打印到调试控制台
     qDebug() << "接收到的数据：" << formattedHex;
@@ -37,18 +37,44 @@ void MainWindow::dataCallback(const QByteArray &data)
 void MainWindow::initSerialPorts()
 {
     // 获取所有可用的串口信息
-    QList<QSerialPortInfo> list = serialManager.getAllPort();
+    QList<QSerialPortInfo> serialPortInfoList = serialManager.getAllPort();
+
+    QList baudRatesList =  serialManager.getAllBaudRates();
+    QList dataBitsList = serialManager.getAllDataBits();
+    QList stopBitsList =  serialManager.getAllStopBits();
+    QList parityList =  serialManager.getAllParity();
 
     // 清空下拉框内容
     ui->comboBox->clear();
 
     // 将串口名称添加到下拉框
-    for (const QSerialPortInfo &info : list) {
-        ui->comboBox->addItem(info.portName()); // 添加串口名
+    for (const QSerialPortInfo &info : serialPortInfoList) {
+        ui->comboBox->addItem(info.portName());
+    }
+    // 将波特率添加到下拉框
+    for (const QString &info : baudRatesList) {
+        ui->comboBox_2->addItem(info);
+    }
+    // 波特率默认9600
+    ui->comboBox_2->setCurrentIndex(3);
+    // 将数据位添加到下拉框
+    for (const QString &info : dataBitsList) {
+        ui->comboBox_3->addItem(info);
+    }
+    ui->comboBox_3->setCurrentIndex(dataBitsList.length() - 1);
+
+    // 将停止位添加到下拉框
+    for (const QString &info : stopBitsList) {
+        ui->comboBox_4->addItem(info);
+    }
+
+    // 将校验位添加到下拉框
+    for (const QString &info : parityList) {
+        ui->comboBox_5->addItem(info);
     }
 
     // 如果没有可用串口，提示用户
-    if (list.isEmpty()) {
+    if (serialPortInfoList.isEmpty()) {
         QMessageBox::warning(this, "提示", "未检测到可用串口！");
     }
 }
@@ -71,7 +97,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     // 获取输入的十六进制字符串
-    QString hexString = ui->textEdit->toPlainText().trimmed();
+    QString hexString = ui->textEdit_2->toPlainText().trimmed();
 
     // 检查输入是否为空
     if (hexString.isEmpty()) {
@@ -132,6 +158,11 @@ void MainWindow::on_pushButton_2_clicked(bool checked)
 
     // 获取选中的串口名称
     QString portName = ui->comboBox->currentText();
+    int baudRates = ui->comboBox_2->currentText().toInt();
+    QSerialPort::DataBits dataBits = static_cast<QSerialPort::DataBits>(ui->comboBox_3->currentText().toInt());
+    QSerialPort::StopBits stopBits =ui->comboBox_4->currentData().value<QSerialPort::StopBits>();
+    QSerialPort::Parity parity = ui->comboBox_5->currentData().value<QSerialPort::Parity>();
+
     if (portName.isEmpty()) {
         QMessageBox::warning(this, "错误", "请选择一个有效的串口！");
         ui->pushButton_2->setChecked(true);
@@ -139,7 +170,7 @@ void MainWindow::on_pushButton_2_clicked(bool checked)
     }
 
     // 检查并尝试打开串口
-    if (!serialManager.init(portName)) {
+    if (!serialManager.init(portName, baudRates, dataBits, parity, stopBits)) {
         QMessageBox::critical(this, "错误", "无法打开串口，请检查连接！");
         ui->pushButton_2->setChecked(true);
         return;
@@ -157,4 +188,19 @@ void MainWindow::on_pushButton_2_clicked(bool checked)
         dataCallback(data);
     });
 }
+
+
+// 清空发送区域
+void MainWindow::on_pushButton_4_clicked()
+{
+    ui->textEdit->clear();
+}
+
+// 清空接收区
+void MainWindow::on_pushButton_3_clicked()
+{
+    ui->textEdit_2->clear();
+}
+
+
 

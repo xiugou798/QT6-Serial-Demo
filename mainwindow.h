@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QTimer>
 
 #include "SerialPortManager.h"
 
@@ -24,6 +25,11 @@ private slots:
     void initSerialPorts();
 
     void on_pushButton_2_clicked(bool checked);
+
+    void on_pushButton_4_clicked();
+
+    void on_pushButton_3_clicked();
+
 
 private:
     Ui::MainWindow *ui;
